@@ -1,20 +1,27 @@
 <?php
 
-namespace \uzdevid\cardlink;
+namespace uzdevid\cardlink;
 
 use yii\base\Component;
 use yii\base\InvalidValueException;
 
 class CardLink extends Component {
-    private $token;
+    public $token;
     public $shop_id;
 
+    protected $_config;
+
+    public function __construct($config = []) {
+        parent::__construct($config);
+        $this->_config = $config;
+    }
+
     public function getBill() {
-        return new Bill();
+        return new Bill($this->_config);
     }
 
     public function getExecute() {
-        return new Execute();
+        return new Execute($this->_config);
     }
 }
 
@@ -32,6 +39,7 @@ class Bill extends CardLink {
         if (empty($data['currency_in']))
             $data['currency_in'] = 'RUB';
 
+        $data['clear'] = 1;
         $data['amount'] = number_format($data['amount'], 2, '.', '');
         return $this->execute->query('/api/v1/bill/create', $data);
     }
